@@ -1,0 +1,35 @@
+<sdf version="1.8">
+  <world name="default">
+    <!-- simple directional light (avoids needing model://sun) -->
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <direction>-0.5 0.5 -1</direction>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+    </light>
+
+    <!-- Warehouse from Fuel (author: NGD1004). 
+         Make sure ~/.gz/fuel is in GZ_SIM_RESOURCE_PATH or pre-download it (see below). -->
+    <include>
+      <name>Warehouse</name>
+      <uri>https://fuel.gazebosim.org/1.0/NGD1004/models/Warehouse</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <!-- Your local X3 model. If your model name/folder differs, change the URI accordingly. -->
+    <include>
+      <name>X3</name>
+      <uri>model://X3</uri>
+      <!-- start a bit above the floor so it doesn't clip -->
+      <pose>0 0 1.2 0 0 0</pose>
+    </include>
+
+
+    <include>
+      <name>GroundPlane</name>
+      <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/Ground%20Plane</uri>
+      <pose>0 0 0.05 0 0 0</pose>
+    </include>
+  </world>
+</sdf>
+
