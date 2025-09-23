@@ -40,7 +40,7 @@ public:
     force_zero_rp_      = declare_parameter<bool>("force_zero_roll_pitch", true);
 
     if (!loadCsv(csv_path_, wps_) || wps_.empty()) {
-      RCLCPP_FATAL(get_logger(), "Failed to load CSV: %s", csv_path_.c_str());
+      RCLCPP_FATAL(get_logger(), "Failed to load CSV: %s", csv_path_.c_str());        
       rclcpp::shutdown();
       return;
     }

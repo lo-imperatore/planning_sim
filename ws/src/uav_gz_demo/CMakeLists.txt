@@ -36,9 +36,14 @@ install(TARGETS x3_position_controller
 
 add_executable(trajectory_streamer src/trajectory_streamer.cpp)
 ament_target_dependencies(trajectory_streamer rclcpp geometry_msgs tf2)
-
 install(TARGETS trajectory_streamer
   DESTINATION lib/${PROJECT_NAME})
+
+add_executable(global_planner src/global_planner.cpp)
+  ament_target_dependencies(global_planner
+    rclcpp geometry_msgs nav_msgs std_msgs tf2 tf2_ros tf2_geometry_msgs)
+install(TARGETS global_planner
+    DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY worlds launch models trajectories scripts pointclouds
   DESTINATION share/${PROJECT_NAME})
