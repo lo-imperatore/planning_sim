@@ -63,6 +63,7 @@ def generate_launch_description():
             '-z', z_spawn,
             '-Y', yaw_spawn
         ],
+        parameters=[{'use_sim_time': use_sim_time}],
         output='screen'
     )
 
@@ -78,7 +79,8 @@ def generate_launch_description():
             '/world/default/pose/info@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
             '/X3/gazebo/command/twist@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/X3/enable@std_msgs/msg/Bool@gz.msgs.Boolean',
-        ]
+        ],
+        parameters=[{'use_sim_time': use_sim_time}],
     )
 
     # one-shot enable after bridge is up
@@ -112,9 +114,7 @@ def generate_launch_description():
         gz, x_spawn_arg, y_spawn_arg, z_spawn_arg, yaw_spawn_arg, is_use_sim_time_arg,
         spawn_entity,
         bridge,
-        enable_once,
-        global_planner,
-        # TimerAction(period=1.5, actions=[enable_once]),
-        # TimerAction(period=1.8, actions=[position_ctl]),
-        # TimerAction(period=2.2, actions=[traj_streamer]),
+        TimerAction(period=1.5, actions=[enable_once]),
+        TimerAction(period=3.0, actions=[global_planner])
+
     ])
