@@ -6,7 +6,7 @@ services:
     working_dir: /work/ws
     network_mode: host
 
-    gpus: all
+    # gpus: all
     environment:
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1

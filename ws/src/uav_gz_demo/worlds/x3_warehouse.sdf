@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <sdf version="1.8">
   <world name="default">
     <!-- simple directional light (avoids needing model://sun) -->
@@ -21,7 +22,7 @@
       <name>X3</name>
       <uri>model://X3</uri>
       <!-- start a bit above the floor so it doesn't clip -->
-      <pose>0 0 1.2 0 0 0</pose>
+      <pose> 0 0 1.2 0 0 0</pose>
     </include>
 
 

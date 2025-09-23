@@ -22,8 +22,8 @@ public:
   {
     // Parameters
     ns_ = this->declare_parameter<std::string>("ns", "X3");
-    world_frame_ = this->declare_parameter<std::string>("world_frame", "world");
-    body_frame_  = this->declare_parameter<std::string>("body_frame", ns_ + "/base_link");
+    // world_frame_ = this->declare_parameter<std::string>("world_frame", "world");
+    // body_frame_  = this->declare_parameter<std::string>("body_frame", ns_ + "/base_link");
 
     pos_tol_ = this->declare_parameter<double>("pos_tol", 0.10);
     yaw_tol_ = this->declare_parameter<double>("yaw_tol", 0.08);  // ~4.5 deg
@@ -40,34 +40,38 @@ public:
 
     // --- Topic params (NEW) ---
     // Gazebo plugin default is "cmd_vel"; commonly appears as /model/<ns>/cmd_vel
-    cmd_topic_ = this->declare_parameter<std::string>("cmd_topic", "/model/" + ns_ + "/cmd_vel");
+    // cmd_topic_ = this->declare_parameter<std::string>("cmd_topic", "/model/" + ns_ + "/cmd_vel");
+    twist_topic_ = this->declare_parameter<std::string>("twist_topic", "/" + ns_ + "/twist");
     enable_topic_ = this->declare_parameter<std::string>("enable_topic", "/" + ns_ + "/enable");
     setpoint_topic_ = this->declare_parameter<std::string>("setpoint_topic", "/" + ns_ + "/position_setpoint");
     path_topic_   = this->declare_parameter<std::string>("path_topic", "/" + ns_ + "/path");
 
-    pub_cmd_ = this->create_publisher<geometry_msgs::msg::Twist>(cmd_topic_, rclcpp::QoS(10).reliable());
-    pub_enable_ = this->create_publisher<std_msgs::msg::Bool>(enable_topic_, rclcpp::QoS(1).reliable());
+    // Publishers
+    pub_cmd_ = this->create_publisher<geometry_msgs::msg::Twist>(twist_topic_, rclcpp::QoS(10).reliable());
+    // pub_enable_ = this->create_publisher<std_msgs::msg::Bool>(enable_topic_, rclcpp::QoS(1).reliable());
 
+    // Subscribers
     sub_goal_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
       setpoint_topic_, 10,
       [this](const geometry_msgs::msg::PoseStamped & msg) {
-        queue_.clear();
+        // queue_.clear();
         current_goal_ = msg;
-        RCLCPP_INFO(this->get_logger(), "New setpoint received: (%.2f, %.2f, %.2f)",
-                    msg.pose.position.x, msg.pose.position.y, msg.pose.position.z);
+        // RCLCPP_INFO(this->get_logger(), "Setpoint frame: %s", msg.header.frame_id.c_str());
+        // RCLCPP_INFO(this->get_logger(), "Setpoint position: (%.2f, %.2f, %.2f)",
+        //             msg.pose.position.x, msg.pose.position.y, msg.pose.position.z);
       });
 
-    sub_path_ = this->create_subscription<nav_msgs::msg::Path>(
-      path_topic_, 10,
-      [this](const nav_msgs::msg::Path & msg) {
-        queue_.clear();
-        for (const auto & ps : msg.poses) queue_.push_back(ps.pose);
-        advance_goal_();
-      });
+    // sub_path_ = this->create_subscription<nav_msgs::msg::Path>(
+    //   path_topic_, 10,
+    //   [this](const nav_msgs::msg::Path & msg) {
+    //     queue_.clear();
+    //     for (const auto & ps : msg.poses) queue_.push_back(ps.pose);
+    //     advance_goal_();
+    //   });
 
     // Arm/enable once on startup
-    std_msgs::msg::Bool en; en.data = true;
-    pub_enable_->publish(en);
+    // std_msgs::msg::Bool en; en.data = true;
+    // pub_enable_->publish(en);
 
     // Control loop timer
     using namespace std::chrono_literals;
@@ -78,7 +82,7 @@ public:
 
     RCLCPP_INFO(get_logger(),
       "X3PositionController started.\n  cmd  : %s\n  enable: %s\n  setpoint: %s\n  path: %s\n  frames: world=%s, body=%s",
-      cmd_topic_.c_str(), enable_topic_.c_str(), setpoint_topic_.c_str(), path_topic_.c_str(),
+      twist_topic_.c_str(), enable_topic_.c_str(), setpoint_topic_.c_str(), path_topic_.c_str(),
       world_frame_.c_str(), body_frame_.c_str());
   }
 
@@ -115,10 +119,14 @@ private:
     try {
       tf = tf_buffer_.lookupTransform(world_frame_, body_frame_, tf2::TimePointZero);
     } catch (const tf2::TransformException & ex) {
+      RCLCPP_INFO(get_logger(), "Waiting for TF %s → %s...",
+        world_frame_.c_str(), body_frame_.c_str());
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000, "TF lookup failed: %s", ex.what());
       return;
     }
 
+    RCLCPP_INFO(get_logger(), "Have TF %s → %s.",
+      tf.header.frame_id.c_str(), tf.child_frame_id.c_str());
     // Current pose
     const auto & T = tf.transform.translation;
     const auto & R = tf.transform.rotation;
@@ -137,11 +145,7 @@ private:
 
     const double pos_err = std::sqrt(ex*ex + ey*ey + ez*ez);
     if (pos_err < pos_tol_ && std::fabs(eyaw) < yaw_tol_) {
-      if (!queue_.empty()) {
-        advance_goal_();
-      } else {
-        pub_cmd_->publish(geometry_msgs::msg::Twist()); // stop
-      }
+      pub_cmd_->publish(geometry_msgs::msg::Twist()); // stop
       return;
     }
 
@@ -174,12 +178,14 @@ private:
     cmd.linear.y  = vy_b;
     cmd.linear.z  = vz;
     cmd.angular.z = wz;
+    RCLCPP_INFO(get_logger(), "cmd: vx=%.2f vy=%.2f vz=%.2f wz=%.2f", vx_b, vy_b, vz, wz);
     pub_cmd_->publish(cmd);
+
   }
 
   // Params / topics
   std::string ns_, world_frame_, body_frame_;
-  std::string cmd_topic_, enable_topic_, setpoint_topic_, path_topic_;
+  std::string twist_topic_, enable_topic_, setpoint_topic_, path_topic_;
 
   // Gains/limits
   double kp_xy_, kp_z_, kp_yaw_;
@@ -196,7 +202,7 @@ private:
 
   // ROS
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_cmd_;
-  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_enable_;
+  // rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_enable_;
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_goal_;
   rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr sub_path_;
   rclcpp::TimerBase::SharedPtr timer_;

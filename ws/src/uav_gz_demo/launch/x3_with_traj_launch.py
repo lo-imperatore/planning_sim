@@ -44,7 +44,9 @@ def generate_launch_description():
         executable='parameter_bridge',
         output='screen',
         arguments=[
+            # Clock (Gazebo → ROS)
             '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
+            # UAV state (ROS ↔ Gazebo)
             '/world/default/pose/info@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
             '/X3/gazebo/command/twist@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/X3/enable@std_msgs/msg/Bool@gz.msgs.Boolean',
@@ -76,7 +78,7 @@ def generate_launch_description():
             # output topic the controller publishes (must match the bridge):
             'twist_topic': '/X3/gazebo/command/twist',
             # input topic must match the streamer below:
-            'setpoint_topic': setpoint_topic,
+            # 'setpoint_topic': setpoint_topic,
         }]
     )
 
@@ -90,7 +92,7 @@ def generate_launch_description():
             'csv_path': traj_csv,
             'topic_name': setpoint_topic,
             'frame_id': 'world',
-            'rate_hz': rate_hz,
+            'rate_hz': 5.0,
             'takeoff_prepend': False,
             'takeoff_height': 2.0,
             'takeoff_duration_s': 3.0,
@@ -107,7 +109,10 @@ def generate_launch_description():
         world_arg, traj_arg, rate_arg, print_every_arg, use_steady_arg, setpoint_topic_arg,
         gz,
         bridge,
-        TimerAction(period=1.5, actions=[enable_once]),
-        TimerAction(period=1.8, actions=[position_ctl]),
-        TimerAction(period=2.2, actions=[traj_streamer]),
+        enable_once,
+        position_ctl,
+        traj_streamer,
+        # TimerAction(period=1.5, actions=[enable_once]),
+        # TimerAction(period=1.8, actions=[position_ctl]),
+        # TimerAction(period=2.2, actions=[traj_streamer]),
     ])

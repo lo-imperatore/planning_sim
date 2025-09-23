@@ -189,7 +189,7 @@ private:
     msg.pose.orientation.w = q.w();
 
     pub_->publish(msg);
-    maybePrint(w, t);
+    // maybePrint(w, t);
 
     if (!done_logged_ && t >= wps_.back().t) {
       done_logged_ = true;
