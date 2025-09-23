@@ -40,7 +40,7 @@ ament_target_dependencies(trajectory_streamer rclcpp geometry_msgs tf2)
 install(TARGETS trajectory_streamer
   DESTINATION lib/${PROJECT_NAME})
 
-install(DIRECTORY worlds launch models trajectories
+install(DIRECTORY worlds launch models trajectories scripts pointclouds
   DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)

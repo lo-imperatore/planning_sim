@@ -12,7 +12,7 @@ def generate_launch_description():
     # ---- args you can override on the command line ----
     world_arg = DeclareLaunchArgument(
         'world',
-        default_value=os.path.join(pkg_share, 'worlds', 'x3_warehouse.sdf'),
+        default_value=os.path.join(pkg_share, 'worlds', 'x3_warehouse_challenging.sdf'),
         description='Path to the world SDF'
     )
     traj_arg = DeclareLaunchArgument(
