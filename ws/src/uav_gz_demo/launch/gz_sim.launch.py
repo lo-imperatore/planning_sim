@@ -36,7 +36,7 @@ def generate_launch_description():
 
         # Single process: always GUI (no IfCondition)
         ExecuteProcess(
-            cmd=['gz', 'sim', world, '-v', verbose],
+            cmd=['gz', 'sim', world, '-v', verbose, '-r'],
             output='screen'
         ),
     ])

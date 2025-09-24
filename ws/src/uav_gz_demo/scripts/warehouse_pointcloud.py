@@ -37,7 +37,7 @@ def generate_warehouse_pointcloud():
     
     # Generate pointcloud with medium density
     print("\n2. Generating pointcloud...")
-    generator = PointcloudGenerator(point_density=0.2)  # 20cm between points
+    generator = PointcloudGenerator(point_density=0.05)  # 20cm between points
     pointcloud = generator.generate_pointcloud(geometries)
     
     print(f"   Generated {len(pointcloud)} points")

@@ -17,7 +17,7 @@ def generate_launch_description():
     )
     traj_arg = DeclareLaunchArgument(
         'traj_csv',
-        default_value=os.path.join(pkg_share, 'trajectories', 'traj_drone_hybrid_1.csv'),
+        default_value=os.path.join(pkg_share, 'trajectories', 'traj_drone_hybrid_2.csv'),
         description='Trajectory CSV (time_s,x,y,z,yaw_rad,roll_rad,pitch_rad)'
     )
     rate_arg = DeclareLaunchArgument('rate_hz', default_value='50.0')
@@ -26,7 +26,7 @@ def generate_launch_description():
 
     
     # ---- robot spawn arguments ----
-    x_spawn_arg = DeclareLaunchArgument('x_spawn', default_value='-9.5')
+    x_spawn_arg = DeclareLaunchArgument('x_spawn', default_value='-10.0')
     y_spawn_arg = DeclareLaunchArgument('y_spawn', default_value='12.0')
     z_spawn_arg = DeclareLaunchArgument('z_spawn', default_value='1.2')
     yaw_spawn_arg = DeclareLaunchArgument('yaw_spawn', default_value='0.0')
@@ -79,6 +79,8 @@ def generate_launch_description():
             '/world/default/pose/info@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
             '/X3/gazebo/command/twist@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/X3/enable@std_msgs/msg/Bool@gz.msgs.Boolean',
+            # Visualization markers (ROS → Gazebo)
+            # '/trajectory_markers@visualization_msgs/msg/MarkerArray[gz.msgs.Marker_V',
         ],
         parameters=[{'use_sim_time': use_sim_time}],
     )
@@ -109,13 +111,37 @@ def generate_launch_description():
         }]
     )
 
+    # ---- Trajectory Visualizer (ROS markers for RViz) ----
+    trajectory_visualizer = Node(
+        package='uav_gz_demo',
+        executable='trajectory_visualizer.py',
+        name='trajectory_visualizer',
+        output='screen',
+        parameters=[{
+            'csv_path': traj_csv,
+            'frame_id': 'world',
+            'marker_scale': 0.3,
+            'line_width': 0.15,
+            'publish_rate': 2.0,
+            'trajectory_color': [1.0, 0.2, 0.2, 0.8],  # Red trajectory
+            'current_point_color': [0.2, 1.0, 0.2, 1.0],  # Green current point
+            'show_orientation': False,
+            'show_waypoints': True,
+            'use_sim_time': use_sim_time,
+        }]
+    )
+
     return LaunchDescription([
         world_arg, traj_arg, rate_arg, print_every_arg, use_steady_arg,
         gz, x_spawn_arg, y_spawn_arg, z_spawn_arg, yaw_spawn_arg, is_use_sim_time_arg,
         spawn_entity,
         bridge,
-        TimerAction(period=1.5, actions=[enable_once]),
-        TimerAction(period=6.0, actions=[global_planner])
+        enable_once,
+        # global_planner,
+               
+        # TimerAction(period=1.5, actions=[enable_once]),
+        TimerAction(period=2.3, actions=[global_planner]),
+        trajectory_visualizer,  # ROS markers for RViz
         
 
     ])

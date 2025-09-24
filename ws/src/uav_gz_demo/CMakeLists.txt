@@ -7,6 +7,7 @@ endif()
 
 # find dependencies
 find_package(rclcpp REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -44,6 +45,19 @@ add_executable(global_planner src/global_planner.cpp)
     rclcpp geometry_msgs nav_msgs std_msgs tf2 tf2_ros tf2_geometry_msgs)
 install(TARGETS global_planner
     DESTINATION lib/${PROJECT_NAME})
+
+#########################
+# Python executable script
+#########################
+install(PROGRAMS
+  scripts/trajectory_visualizer.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# OPTIONAL: install a Python package (importable modules)
+# if(ament_cmake_python_FOUND)
+#   ament_python_install_package(${PROJECT_NAME}_py PACKAGE_DIR src_py/${PROJECT_NAME}_py)
+# endif()
 
 install(DIRECTORY worlds launch models trajectories scripts pointclouds
   DESTINATION share/${PROJECT_NAME})
