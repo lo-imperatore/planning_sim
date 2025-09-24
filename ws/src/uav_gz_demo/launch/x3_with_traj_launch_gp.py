@@ -17,17 +17,17 @@ def generate_launch_description():
     )
     traj_arg = DeclareLaunchArgument(
         'traj_csv',
-        default_value=os.path.join(pkg_share, 'trajectories', 'traj_drone_hybrid_prova.csv'),
+        default_value=os.path.join(pkg_share, 'trajectories', 'traj_drone_hybrid_1.csv'),
         description='Trajectory CSV (time_s,x,y,z,yaw_rad,roll_rad,pitch_rad)'
     )
-    rate_arg = DeclareLaunchArgument('rate_hz', default_value='10.0')
+    rate_arg = DeclareLaunchArgument('rate_hz', default_value='50.0')
     print_every_arg = DeclareLaunchArgument('print_every_s', default_value='0.5')
     use_steady_arg = DeclareLaunchArgument('use_steady_clock', default_value='true')
 
     
     # ---- robot spawn arguments ----
-    x_spawn_arg = DeclareLaunchArgument('x_spawn', default_value='3.0')
-    y_spawn_arg = DeclareLaunchArgument('y_spawn', default_value='0.0')
+    x_spawn_arg = DeclareLaunchArgument('x_spawn', default_value='-9.5')
+    y_spawn_arg = DeclareLaunchArgument('y_spawn', default_value='12.0')
     z_spawn_arg = DeclareLaunchArgument('z_spawn', default_value='1.2')
     yaw_spawn_arg = DeclareLaunchArgument('yaw_spawn', default_value='0.0')
 
@@ -115,6 +115,7 @@ def generate_launch_description():
         spawn_entity,
         bridge,
         TimerAction(period=1.5, actions=[enable_once]),
-        TimerAction(period=3.0, actions=[global_planner])
+        TimerAction(period=6.0, actions=[global_planner])
+        
 
     ])
