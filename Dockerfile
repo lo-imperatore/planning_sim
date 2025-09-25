@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     ros-$ROS_DISTRO-ros-gz \
     ros-$ROS_DISTRO-ros-gz-bridge \
     ros-$ROS_DISTRO-ros-gz-sim \
+    ros-$ROS_DISTRO-gz-transport-vendor \
+    ros-$ROS_DISTRO-gz-msgs-vendor \
     ros-$ROS_DISTRO-rmw-cyclonedds-cpp \  
     python3-colcon-common-extensions \
  && rm -rf /var/lib/apt/lists/*

@@ -983,7 +983,6 @@
       <pose> 0 0 1.2 0 0 0</pose>
     </include> -->
 
-
     <include>
       <name>GroundPlane</name>
       <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/Ground%20Plane</uri>

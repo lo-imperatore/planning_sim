@@ -104,7 +104,7 @@ private:
             return;
         }
 
-        RCLCPP_INFO(this->get_logger(), "Publishing waypoints...");
+        // RCLCPP_INFO(this->get_logger(), "Publishing waypoints...");
         const Waypoint& wp = waypoints_[current_waypoint_];
         
         // Create and publish the twist message
@@ -118,11 +118,11 @@ private:
         
         twist_pub_->publish(twist_msg);
 
-        RCLCPP_INFO(this->get_logger(), "Published waypoint %zu: lin_vel=[%.2f, %.2f, %.2f], ang_vel=[%.2f, %.2f, %.2f], mode=%d",
-                 current_waypoint_,
-                 wp.linear_vel_x, wp.linear_vel_y, wp.linear_vel_z,
-                 wp.angular_vel_x, wp.angular_vel_y, wp.angular_vel_z,
-                 wp.mode);
+        // RCLCPP_INFO(this->get_logger(), "Published waypoint %zu: lin_vel=[%.2f, %.2f, %.2f], ang_vel=[%.2f, %.2f, %.2f], mode=%d",
+        //          current_waypoint_,
+        //          wp.linear_vel_x, wp.linear_vel_y, wp.linear_vel_z,
+        //          wp.angular_vel_x, wp.angular_vel_y, wp.angular_vel_z,
+        //          wp.mode);
         
         current_waypoint_++;
     }

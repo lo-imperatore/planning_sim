@@ -14,6 +14,11 @@ find_package(std_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(gz_transport_vendor REQUIRED)
+find_package(gz_msgs_vendor REQUIRED)
+find_package(gz-transport REQUIRED)
+find_package(gz-msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -46,18 +51,15 @@ add_executable(global_planner src/global_planner.cpp)
 install(TARGETS global_planner
     DESTINATION lib/${PROJECT_NAME})
 
-#########################
-# Python executable script
-#########################
-install(PROGRAMS
-  scripts/trajectory_visualizer.py
-  DESTINATION lib/${PROJECT_NAME}
-)
 
-# OPTIONAL: install a Python package (importable modules)
-# if(ament_cmake_python_FOUND)
-#   ament_python_install_package(${PROJECT_NAME}_py PACKAGE_DIR src_py/${PROJECT_NAME}_py)
-# endif()
+add_executable(trajectory_visualizer src/trajectory_visualizer.cpp)
+  ament_target_dependencies(trajectory_visualizer
+    rclcpp geometry_msgs nav_msgs std_msgs tf2 tf2_ros tf2_geometry_msgs visualization_msgs)
+  target_link_libraries(trajectory_visualizer gz-transport::gz-transport gz-msgs::gz-msgs)
+install(TARGETS trajectory_visualizer
+    DESTINATION lib/${PROJECT_NAME})  
+
+
 
 install(DIRECTORY worlds launch models trajectories scripts pointclouds
   DESTINATION share/${PROJECT_NAME})

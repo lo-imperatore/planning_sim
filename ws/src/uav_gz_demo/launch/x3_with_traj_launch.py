@@ -135,6 +135,22 @@ def generate_launch_description():
         }]
     )
 
+    traj_to_gz_markers = Node(
+        package='uav_gz_demo',
+        executable='trajectory_visualizer',   # <— your converter node
+        name='trajectory_visualizer',
+        output='screen',
+        parameters=[{
+            'csv_path': traj_csv,
+            'marker_service': '/marker',   # must match <topic_name> in gui_markers.config
+            'line_width': 0.15,
+            'point_size': 0.30,
+            'traj_color': [1.0, 0.2, 0.2, 0.8],
+            'show_waypoints': True,
+            'use_sim_time': True,
+        }]
+    )
+
     return LaunchDescription([
         world_arg, traj_arg, rate_arg, print_every_arg, use_steady_arg, setpoint_topic_arg,
         gz, x_spawn_arg, y_spawn_arg, z_spawn_arg, yaw_spawn_arg,
@@ -142,6 +158,7 @@ def generate_launch_description():
         bridge,
         enable_once,
         position_ctl,
+        traj_to_gz_markers,
         RegisterEventHandler(
             OnProcessExit(
                 target_action=spawn_entity,
