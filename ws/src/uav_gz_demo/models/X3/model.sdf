@@ -661,14 +661,14 @@
           </rotor>
         </rotorConfiguration>
       </plugin>
-      <plugin filename="libgz-sim-pose-publisher-system.so"
-        name="gz::sim::systems::PosePublisher">
-      <publish_link_pose>true</publish_link_pose>
-      <publish_visual_pose>false</publish_visual_pose>
-      <publish_collision_pose>false</publish_collision_pose>
-      <publish_nested_model_pose>true</publish_nested_model_pose>
-      <!-- You can also specify `use_pose_vector_msg` for a single topic publishing all poses -->
-      <use_pose_vector_msg>true</use_pose_vector_msg>
+        <plugin filename="libgz-sim-pose-publisher-system.so"
+            name="gz::sim::systems::PosePublisher">
+        <publish_link_pose>true</publish_link_pose>
+        <publish_visual_pose>false</publish_visual_pose>
+        <publish_collision_pose>false</publish_collision_pose>
+        <publish_nested_model_pose>true</publish_nested_model_pose>
+        <!-- You can also specify `use_pose_vector_msg` for a single topic publishing all poses -->
+        <!-- <use_pose_vector_msg>true</use_pose_vector_msg> -->
     </plugin>
     </model>
 </sdf>

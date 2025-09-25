@@ -1,5 +1,6 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction, ExecuteProcess, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, TimerAction, ExecuteProcess, DeclareLaunchArgument, RegisterEventHandler, LogInfo
+from launch.event_handlers import OnExecutionComplete, OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -17,8 +18,8 @@ def generate_launch_description():
     )
     traj_arg = DeclareLaunchArgument(
         'traj_csv',
-        default_value=os.path.join(pkg_share, 'trajectories', 'traj_drone_hybrid_prova.csv'),
-        description='Trajectory CSV (time_s,x,y,z,yaw_rad,roll_rad,pitch_rad)'
+        default_value=os.path.join(pkg_share, 'trajectories', 'traj_drone_hybrid_3.csv'),
+        description='Trajectory CSV (x,y,z,roll_rad,pitch_rad,yaw_rad)'
     )
     rate_arg = DeclareLaunchArgument('rate_hz', default_value='50.0')
     print_every_arg = DeclareLaunchArgument('print_every_s', default_value='0.5')
@@ -26,10 +27,10 @@ def generate_launch_description():
     setpoint_topic_arg = DeclareLaunchArgument('setpoint_topic', default_value='/X3/position_setpoint')
     
     # ---- robot spawn arguments ----
-    x_spawn_arg = DeclareLaunchArgument('x_spawn', default_value='3.0')
-    y_spawn_arg = DeclareLaunchArgument('y_spawn', default_value='0.0')
+    x_spawn_arg = DeclareLaunchArgument('x_spawn', default_value='-10.0')
+    y_spawn_arg = DeclareLaunchArgument('y_spawn', default_value='12.0')
     z_spawn_arg = DeclareLaunchArgument('z_spawn', default_value='1.2')
-    yaw_spawn_arg = DeclareLaunchArgument('yaw_spawn', default_value='0.0')
+    yaw_spawn_arg = DeclareLaunchArgument('yaw_spawn', default_value='1.57')
 
     world = LaunchConfiguration('world')
     traj_csv = LaunchConfiguration('traj_csv')
@@ -71,7 +72,10 @@ def generate_launch_description():
         output='screen',
         arguments=[
             # Clock (Gazebo → ROS)
-            '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
+            # '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
+            '/world/default/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            '/model/X3/pose@geometry_msgs/msg/PoseStamped@gz.msgs.Pose',
+            # '/model/X3/pose@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
             # UAV state (ROS ↔ Gazebo)
             '/world/default/pose/info@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V',
             '/X3/gazebo/command/twist@geometry_msgs/msg/Twist@gz.msgs.Twist',
@@ -94,12 +98,12 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'ns': 'X3',
-            'world_frame': 'world',
-            'body_frame': 'X3/base_link',
+            'world_frame': 'default',
+            'body_frame': 'X3',
             'kp_xy': 1.0, 'kp_z': 1.0, 'kp_yaw': 1.5,
             'max_v_xy': 1.0, 'max_v_z': 0.8, 'max_w_z': 1.0,
             'pos_tol': 0.10, 'yaw_tol': 0.08,
-            'rate': 50.0,
+            'rate': rate_hz,
             'use_sim_time': True,
             # output topic the controller publishes (must match the bridge):
             'twist_topic': '/X3/gazebo/command/twist',
@@ -118,7 +122,7 @@ def generate_launch_description():
             'csv_path': traj_csv,
             'topic_name': setpoint_topic,
             'frame_id': 'world',
-            'rate_hz': 5.0,
+            'rate_hz': rate_hz,
             'takeoff_prepend': False,
             'takeoff_height': 2.0,
             'takeoff_duration_s': 3.0,
@@ -138,7 +142,17 @@ def generate_launch_description():
         bridge,
         enable_once,
         position_ctl,
-        traj_streamer,
+        RegisterEventHandler(
+            OnProcessExit(
+                target_action=spawn_entity,
+                on_exit=[
+                    TimerAction(
+                        period=1.1, 
+                        actions=[traj_streamer]
+                    ),
+                ]
+            )
+        ),
         # TimerAction(period=1.5, actions=[enable_once]),
         # TimerAction(period=1.8, actions=[position_ctl]),
         # TimerAction(period=2.2, actions=[traj_streamer]),

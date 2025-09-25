@@ -60,14 +60,16 @@ public:
         // RCLCPP_INFO(this->get_logger(), "Setpoint position: (%.2f, %.2f, %.2f)",
         //             msg.pose.position.x, msg.pose.position.y, msg.pose.position.z);
       });
-
-    // sub_path_ = this->create_subscription<nav_msgs::msg::Path>(
-    //   path_topic_, 10,
-    //   [this](const nav_msgs::msg::Path & msg) {
-    //     queue_.clear();
-    //     for (const auto & ps : msg.poses) queue_.push_back(ps.pose);
-    //     advance_goal_();
-    //   });
+    
+    sub_robot_pose_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+      "/model/" + ns_ + "/pose", 10,
+      [this](const geometry_msgs::msg::PoseStamped & msg) {
+        if (std::strcmp(msg.header.frame_id.c_str(), "default") == 0) {
+          // Save pose only if in world frame
+          // RCLCPP_INFO(this->get_logger(), "Received robot pose in world frame.");
+          current_pose_ = msg;
+        }
+      });
 
     // Arm/enable once on startup
     // std_msgs::msg::Bool en; en.data = true;
@@ -115,21 +117,24 @@ private:
   {
     if (!current_goal_) return;
 
-    geometry_msgs::msg::TransformStamped tf;
-    try {
-      tf = tf_buffer_.lookupTransform(world_frame_, body_frame_, tf2::TimePointZero);
-    } catch (const tf2::TransformException & ex) {
-      RCLCPP_INFO(get_logger(), "Waiting for TF %s → %s...",
-        world_frame_.c_str(), body_frame_.c_str());
-      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000, "TF lookup failed: %s", ex.what());
+    // geometry_msgs::msg::TransformStamped tf;
+    // try {
+    //   tf = tf_buffer_.lookupTransform(world_frame_, body_frame_, tf2::TimePointZero);
+    // } catch (const tf2::TransformException & ex) {
+    //   RCLCPP_INFO(get_logger(), "Waiting for TF %s → %s...",
+    //     world_frame_.c_str(), body_frame_.c_str());
+    //   RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000, "TF lookup failed: %s", ex.what());
+    //   return;
+    // }
+
+    if (!current_pose_) {
+      RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 2000, "Waiting for robot pose in world frame...");
       return;
     }
-
-    RCLCPP_INFO(get_logger(), "Have TF %s → %s.",
-      tf.header.frame_id.c_str(), tf.child_frame_id.c_str());
-    // Current pose
-    const auto & T = tf.transform.translation;
-    const auto & R = tf.transform.rotation;
+    // Use current_pose_ instead of TF lookup
+    const auto & robot_pose = current_pose_->pose;
+    const auto & T = robot_pose.position;
+    const auto & R = robot_pose.orientation;
     const double yaw = yawFromQuat(R);
 
     // Goal pose
@@ -197,13 +202,13 @@ private:
   tf2_ros::TransformListener tf_listener_;
 
   // Goal/path
-  std::optional<geometry_msgs::msg::PoseStamped> current_goal_;
+  std::optional<geometry_msgs::msg::PoseStamped> current_goal_, current_pose_;
   std::deque<geometry_msgs::msg::Pose> queue_;
 
   // ROS
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_cmd_;
   // rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_enable_;
-  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_goal_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_goal_, sub_robot_pose_;
   rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr sub_path_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
