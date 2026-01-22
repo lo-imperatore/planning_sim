@@ -3,6 +3,7 @@ from launch.actions import IncludeLaunchDescription, TimerAction, ExecuteProcess
 from launch.event_handlers import OnExecutionComplete, OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+from launch.conditions import IfCondition
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os
@@ -18,7 +19,7 @@ def generate_launch_description():
     )
     traj_arg = DeclareLaunchArgument(
         'traj_csv',
-        default_value=os.path.join(pkg_share, 'trajectories', 'traj_drone_hybrid_3.csv'),
+        default_value=os.path.join(pkg_share, 'trajectories', 'traj_drone_hybrid_6.csv'),
         description='Trajectory CSV (x,y,z,roll_rad,pitch_rad,yaw_rad)'
     )
     rate_arg = DeclareLaunchArgument('rate_hz', default_value='50.0')
@@ -32,6 +33,10 @@ def generate_launch_description():
     z_spawn_arg = DeclareLaunchArgument('z_spawn', default_value='1.2')
     yaw_spawn_arg = DeclareLaunchArgument('yaw_spawn', default_value='1.57')
 
+    # ---- bag recording arguments ----
+    enable_bag_arg = DeclareLaunchArgument('enable_bag', default_value='true', description='Enable bag recording')
+    bag_path_arg = DeclareLaunchArgument('bag_path', default_value='src/uav_gz_demo/bag/uav_flight_data', description='Path to save bag file')
+
     world = LaunchConfiguration('world')
     traj_csv = LaunchConfiguration('traj_csv')
     rate_hz = LaunchConfiguration('rate_hz')
@@ -42,6 +47,8 @@ def generate_launch_description():
     y_spawn = LaunchConfiguration('y_spawn')
     z_spawn = LaunchConfiguration('z_spawn')
     yaw_spawn = LaunchConfiguration('yaw_spawn')
+    enable_bag = LaunchConfiguration('enable_bag')
+    bag_path = LaunchConfiguration('bag_path')
 
     # ---- Gazebo world only (without robot) ----
     gz = IncludeLaunchDescription(
@@ -150,9 +157,18 @@ def generate_launch_description():
             'use_sim_time': True,
         }]
     )
+    bag_record = ExecuteProcess(
+        cmd=[
+            'ros2', 'bag', 'record',
+            '-a', 
+            '-o', bag_path,
+        ],
+        output='screen',
+    )
 
     return LaunchDescription([
         world_arg, traj_arg, rate_arg, print_every_arg, use_steady_arg, setpoint_topic_arg,
+        enable_bag_arg, bag_path_arg,
         gz, x_spawn_arg, y_spawn_arg, z_spawn_arg, yaw_spawn_arg,
         spawn_entity,
         bridge,
@@ -167,6 +183,10 @@ def generate_launch_description():
                         period=1.1, 
                         actions=[traj_streamer]
                     ),
+                    # TimerAction(
+                    #     period=2.0, 
+                    #     actions=[bag_record]
+                    # ),
                 ]
             )
         ),
