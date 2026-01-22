@@ -4,5 +4,5 @@
 /sim/
 /ws/src/uav_gz_demo/bag/
 /ws/src/uav_gz_demo/pointclouds/
-.vscode/
 /ws/src/uav_gz_demo/trajectories/
+.vscode/
