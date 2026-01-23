@@ -7,11 +7,12 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 add_executable(track_position_controller src/track_position_controller.cpp)
+ament_target_dependencies(track_position_controller rclcpp geometry_msgs std_msgs)
 target_include_directories(track_position_controller PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
@@ -19,6 +20,10 @@ target_compile_features(track_position_controller PUBLIC c_std_99 cxx_std_17)  #
 
 install(TARGETS track_position_controller
   DESTINATION lib/${PROJECT_NAME})
+
+
+install(DIRECTORY worlds launch models 
+  DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
