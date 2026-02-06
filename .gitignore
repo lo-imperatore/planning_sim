@@ -5,4 +5,6 @@
 /ws/src/uav_gz_demo/bag/
 /ws/src/uav_gz_demo/pointclouds/
 /ws/src/uav_gz_demo/trajectories/
+ws/src/global_path_planner/old_scripts/
+ws/src/global_path_planner/pointcloud/
 .vscode/
