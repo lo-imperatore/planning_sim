@@ -36,6 +36,8 @@
       <pose>-5.01092 3.44738 0.5 0 0 0</pose>
     </include>
 
+
+
     <!-- Lion placed ~1.5m in front of the robot -->
     <include>
       <uri>model://Schleich_Lion_Action_Figure</uri>
