@@ -1136,6 +1136,12 @@
     </joint>
 
 
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
     <plugin name="gz::sim::systems::TrackedVehicle" filename="gz-sim-tracked-vehicle-system">
       <left_track><link>left_track</link></left_track>
       <right_track><link>right_track</link></right_track>

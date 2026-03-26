@@ -1,0 +1,6 @@
+newmtl sand_material
+Ka 0.82 0.74 0.52
+Kd 0.82 0.74 0.52
+Ks 0.02 0.02 0.02
+Ns 10.0
+illum 2

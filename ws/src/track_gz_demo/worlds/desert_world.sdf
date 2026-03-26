@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="desert_world">
+
+    <physics name="default_physics" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 100 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.2 -1</direction>
+    </light>
+
+    <!-- Sand terrain -->
+    <include>
+      <uri>model://sand_dune</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+
+
+
+    <include>
+      <uri>model://CSIRO_DATA61_OZBOT_ATR_SENSOR_CONFIG_2</uri>
+      <name>CSIRO</name>
+      <pose>0 -20.0 3.0 0 0 0.5</pose>
+    </include>
+
+
+    <!-- <include>
+      <uri>model://rock</uri>
+      <pose>-6 10 6.0 0 0 1.1</pose>
+    </include> -->
+
+  
+
+    <include>
+      <uri>model://palm</uri>
+      <pose>12 12 5.0 0 0 0</pose>
+    </include>
+
+
+    <!-- <include>
+      <uri>model://carpobrotus_02</uri>
+      <pose>5 3 10.0 1.57 0 0</pose>
+    </include> -->
+      
+    <include>
+      <uri>model://carpobrotus_01</uri>
+      <pose>10 2 5.0 1.57 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://Schleich_Lion_Action_Figure</uri>
+      <name>lion_front</name>
+      <!-- Offset along +X relative to robot position -->
+      <pose>5.5 3.44738 6.0 0 0 0</pose>
+    </include>
+
+  </world>
+</sdf>

@@ -9,7 +9,14 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+
+add_executable(odom_to_tf src/odom_to_tf.cpp)
+ament_target_dependencies(odom_to_tf rclcpp nav_msgs tf2_ros geometry_msgs)
+install(TARGETS odom_to_tf
+  DESTINATION lib/${PROJECT_NAME})
 
 add_executable(track_position_controller src/track_position_controller.cpp)
 ament_target_dependencies(track_position_controller rclcpp geometry_msgs std_msgs)
@@ -22,7 +29,7 @@ install(TARGETS track_position_controller
   DESTINATION lib/${PROJECT_NAME})
 
 
-install(DIRECTORY worlds launch models 
+install(DIRECTORY worlds launch models config
   DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="carpobrotus_01">
+    <static>false</static>
+
+    <link name="link">
+
+      <!-- SIMPLE collision -->
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1.0 0.01 1.0</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Visual (your GLB) -->
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://carpobrotus_01/meshes/carpo_01.glb</uri>
+            <scale>0.3 0.3 0.3</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+    </link>
+  </model>
+</sdf>
